@@ -1,25 +1,7 @@
-resource "aws_iam_role" "ecs_task_role" {
-  name = "ecsTaskExecutionRole"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
 
 
 resource "aws_ecs_cluster" "my_ecs" {
-  name = "terra-ecs"
+  name = var.ecs_cluster_name
 
   setting {
     name  = "containerInsights"
@@ -28,20 +10,19 @@ resource "aws_ecs_cluster" "my_ecs" {
 }
 
 resource "aws_ecs_task_definition" "my_td" {
-  family                   = "terra-ecs-task"
+  family                   = "${var.ecs_cluser_name}-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = var.desired_td_cpu
+  memory                   = var.desired_td_memory
   execution_role_arn       = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([{
-    name      = "my-app"
+    name      = var.container_name
     image     = "nginx:latest" # Replace with your image
     essential = true
     portMappings = [{
-      containerPort = 80
-      hostPort      = 80
+      containerPort = var.container_port
     }]
   }])
 }
@@ -49,11 +30,11 @@ resource "aws_ecs_task_definition" "my_td" {
 
 
 resource "aws_ecs_service" "my_svc" {
-  name            = "my-terra-ecs-service"
+  name            = "${var.ecs_cluster_name}-service"
   cluster         = aws_ecs_cluster.my_ecs.id
   task_definition = aws_ecs_task_definition.my_td.arn
   launch_type     = "FARGATE"
-  desired_count   = 1
+  desired_count   = var.service_count
 
   network_configuration {
     subnets          = data.aws_subnets.default.ids
@@ -63,7 +44,11 @@ resource "aws_ecs_service" "my_svc" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.app_tg.arn
-    container_name   = "my-app"
-    container_port   = 80
+    container_name   = var.container_name
+    container_port   = var.container_port
   }
+
+  depends_on = [
+  aws_lb_listener.app_listener
+  ]
 }

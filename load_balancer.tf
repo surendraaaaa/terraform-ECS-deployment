@@ -1,13 +1,13 @@
 resource "aws_lb" "app_alb" {
-  name               = "terra-ecs-alb"
+  name               = var.lb_name
   internal           = false
-  load_balancer_type = "application"
+  load_balancer_type = var.lb_type
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = data.aws_subnets.default.ids
 }
 
 resource "aws_lb_target_group" "app_tg" {
-  name        = "terra-ecs-tg"
+  name        = var.lb_target_group_name
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"

@@ -1,5 +1,3 @@
-
-
 resource "aws_ecs_cluster" "my_ecs" {
   name = var.ecs_cluster_name
 
@@ -17,17 +15,27 @@ resource "aws_ecs_task_definition" "my_td" {
   memory                   = var.desired_td_memory
   execution_role_arn       = aws_iam_role.ecs_task_role.arn
 
-  container_definitions = jsonencode([{
-    name      = var.container_name
-    image     = "nginx:latest" # Replace with your image
-    essential = true
-    portMappings = [{
-      containerPort = var.container_port
-    }]
-  }])
+  container_definitions = jsonencode([
+    {
+      name      = "backend"
+      image     = "surendraprajapati/backend"
+      essential = true
+      portMappings = [{ containerPort = 5000 }]
+      environment = [
+        {
+          name  = "MONGO_URL"
+          value = var.mongodb_uri
+        }
+      ]
+    },
+    {
+      name      = "frontend"
+      image     = "surendraprajapati/frontend"
+      essential = true
+      portMappings = [{ containerPort = 3000 }]
+    }
+  ])
 }
-
-
 
 resource "aws_ecs_service" "my_svc" {
   name            = "${var.ecs_cluster_name}-service"
@@ -44,11 +52,11 @@ resource "aws_ecs_service" "my_svc" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.app_tg.arn
-    container_name   = var.container_name
-    container_port   = var.container_port
+    container_name   = "frontend"
+    container_port   = 3000
   }
 
   depends_on = [
-  aws_lb_listener.app_listener
+    aws_lb_listener.app_listener
   ]
 }

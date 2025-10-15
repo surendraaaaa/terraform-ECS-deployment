@@ -1,3 +1,4 @@
+# Application Load Balancer
 resource "aws_lb" "app_alb" {
   name               = var.lb_name
   internal           = false
@@ -6,9 +7,10 @@ resource "aws_lb" "app_alb" {
   subnets            = data.aws_subnets.default.ids
 }
 
+# Target Group for Frontend
 resource "aws_lb_target_group" "app_tg" {
   name        = var.lb_target_group_name
-  port        = 80
+  port        = 3000
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = data.aws_vpc.default.id
@@ -24,6 +26,7 @@ resource "aws_lb_target_group" "app_tg" {
   }
 }
 
+# Listener for ALB
 resource "aws_lb_listener" "app_listener" {
   load_balancer_arn = aws_lb.app_alb.arn
   port              = 80
@@ -34,4 +37,3 @@ resource "aws_lb_listener" "app_listener" {
     target_group_arn = aws_lb_target_group.app_tg.arn
   }
 }
-

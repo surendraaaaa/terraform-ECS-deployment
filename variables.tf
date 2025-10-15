@@ -53,3 +53,8 @@ variable "lb_target_group_name" {
     default = "terra-ecs-lb-tg"
     type = string
 }
+
+variable "mongodb_uri" {
+  description = "MongoDB connection string"
+  type        = string
+}

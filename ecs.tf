@@ -10,7 +10,7 @@ resource "aws_ecs_cluster" "my_ecs" {
 }
 
 resource "aws_ecs_task_definition" "my_td" {
-  family                   = "${var.ecs_cluser_name}-task"
+  family                   = "${var.ecs_cluster_name}-task"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = var.desired_td_cpu

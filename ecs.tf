@@ -18,7 +18,7 @@ resource "aws_ecs_task_definition" "my_td" {
   container_definitions = jsonencode([
     {
       name      = "backend"
-      image     = "surendraprajapati/backend"
+      image     = "surendraprajapati/backend:7aca557bd5cb09b5da8655e3f61368b0c49eb830"
       essential = true
       portMappings = [{ containerPort = 5000 }]
       environment = [
@@ -30,7 +30,7 @@ resource "aws_ecs_task_definition" "my_td" {
     },
     {
       name      = "frontend"
-      image     = "surendraprajapati/frontend"
+      image     = "surendraprajapati/frontend:7aca557bd5cb09b5da8655e3f61368b0c49eb830"
       essential = true
       portMappings = [{ containerPort = 3000 }]
     }

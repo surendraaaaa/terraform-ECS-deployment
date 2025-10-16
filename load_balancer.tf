@@ -10,7 +10,7 @@ resource "aws_lb" "app_alb" {
 # Target Group for Frontend
 resource "aws_lb_target_group" "app_tg" {
   name        = var.lb_target_group_name
-  port        = 3000
+  port        = 80
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = data.aws_vpc.default.id
@@ -28,6 +28,7 @@ resource "aws_lb_target_group" "app_tg" {
 
 # Listener for ALB
 resource "aws_lb_listener" "app_listener" {
+  depends_on        = [aws_lb_target_group.app_tg]
   load_balancer_arn = aws_lb.app_alb.arn
   port              = 80
   protocol          = "HTTP"

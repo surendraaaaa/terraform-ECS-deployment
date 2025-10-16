@@ -1,0 +1,55 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - name: TF_WORKSPACE
+    value: 'dev' # Change this to match your Terraform Cloud workspace
+  - group: terraform-variables # Create this variable group in Azure DevOps with TF_TOKEN
+
+stages:
+  - stage: Terraform
+    jobs:
+      - job: TerraformJob
+        steps:
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: 'latest'
+            displayName: 'Install Terraform'
+
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'terraform'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)'
+              backendServiceArm: ''
+              backendAzureRmResourceGroupName: ''
+              backendAzureRmStorageAccountName: ''
+              backendAzureRmContainerName: ''
+              backendAzureRmKey: ''
+            env:
+              TF_TOKEN_app_terraform_io: $(TF_TOKEN)
+            displayName: 'Terraform Init'
+
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'terraform'
+              command: 'plan'
+              workingDirectory: '$(System.DefaultWorkingDirectory)'
+              environmentServiceNameAzureRM: ''
+            env:
+              TF_TOKEN_app_terraform_io: $(TF_TOKEN)
+            displayName: 'Terraform Plan'
+
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'terraform'
+              command: 'apply'
+              workingDirectory: '$(System.DefaultWorkingDirectory)'
+              environmentServiceNameAzureRM: ''
+            env:
+              TF_TOKEN_app_terraform_io: $(TF_TOKEN)
+            condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+            displayName: 'Terraform Apply'

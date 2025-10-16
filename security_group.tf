@@ -30,11 +30,27 @@ resource "aws_security_group" "ecs_tasks" {
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
-    description     = "Allow traffic from ALB"
-    from_port       = 3000
-    to_port         = 3000
+    description     = "Allow traffic to frontend"
+    from_port       = 80
+    to_port         = 80
     protocol        = "tcp"
     security_groups = [aws_security_group.alb_sg.id]
+  }
+
+  ingress {
+    description     = "Allow traffic to backend"
+    from_port       = 5000
+    to_port         = 5000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+  }
+
+  ingress {
+    description = "Allow internal container communication"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    self        = true
   }
 
   egress {

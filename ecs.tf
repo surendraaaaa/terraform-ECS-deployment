@@ -32,7 +32,7 @@ resource "aws_ecs_task_definition" "my_td" {
       name         = "frontend"
       image        = "surendraprajapati/jenkins-k8s-3tier-frontend:v2"
       essential    = true
-      portMappings = [{ containerPort = 3000 }]
+      portMappings = [{ containerPort = 80 }]
     }
   ])
 }
@@ -53,7 +53,7 @@ resource "aws_ecs_service" "my_svc" {
   load_balancer {
     target_group_arn = aws_lb_target_group.app_tg.arn
     container_name   = "frontend"
-    container_port   = 3000
+    container_port   = 80
   }
 
   depends_on = [

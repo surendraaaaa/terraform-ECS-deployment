@@ -17,9 +17,9 @@ resource "aws_ecs_task_definition" "my_td" {
 
   container_definitions = jsonencode([
     {
-      name      = "backend"
-      image     = "surendraprajapati/backend:7aca557bd5cb09b5da8655e3f61368b0c49eb830"
-      essential = true
+      name         = "backend"
+      image        = "surendraprajapati/jenkins-k8s-3tier-backend:v2"
+      essential    = true
       portMappings = [{ containerPort = 5000 }]
       environment = [
         {
@@ -29,9 +29,9 @@ resource "aws_ecs_task_definition" "my_td" {
       ]
     },
     {
-      name      = "frontend"
-      image     = "surendraprajapati/frontend-app:latest"
-      essential = true
+      name         = "frontend"
+      image        = "surendraprajapati/jenkins-k8s-3tier-frontend:v2"
+      essential    = true
       portMappings = [{ containerPort = 3000 }]
     }
   ])
